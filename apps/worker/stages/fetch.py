@@ -33,9 +33,10 @@ def fetch_video(video_id: str, url: Optional[str], file_path: Optional[str]) -> 
     # It's a URL, use yt-dlp
     output_template = str(get_original_path(video_id, ".%(ext)s"))
     cmd = [
-        "yt-dlp",
+        *settings.resolved_ytdlp_cmd(),
         "--no-playlist",
-        "--format", "mp4/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+        "--format", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best[ext=mp4]/best",
+        "--merge-output-format", "mp4",
         "-o", output_template,
     ]
 
@@ -75,11 +76,12 @@ def fetch_video(video_id: str, url: Optional[str], file_path: Optional[str]) -> 
 
     # Try downloading subtitles only with yt-dlp
     sub_cmd = [
-        "yt-dlp",
+        *settings.resolved_ytdlp_cmd(),
         "--skip-download",
         "--write-subs",
         "--write-auto-subs",
         "--sub-lang", "en,hi",
+        "--convert-subs", "srt",
         "-o", output_template,
         url,
     ]

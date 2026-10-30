@@ -5,9 +5,10 @@ import { Video } from '../api/types';
 interface LibraryProps {
   onSelectVideo: (video: Video) => void;
   onNewUpload: () => void;
+  onDiscover?: () => void;
 }
 
-export const Library: React.FC<LibraryProps> = ({ onSelectVideo, onNewUpload }) => {
+export const Library: React.FC<LibraryProps> = ({ onSelectVideo, onNewUpload, onDiscover }) => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -49,12 +50,28 @@ export const Library: React.FC<LibraryProps> = ({ onSelectVideo, onNewUpload }) 
           <p style={{ fontSize: '2rem', marginBottom: '12px' }}>🎬</p>
           <h3>No videos yet</h3>
           <p style={{ color: 'var(--text-secondary)', margin: '8px 0 16px' }}>Upload an MP4 or enter a YouTube URL to get started.</p>
-          <button
-            onClick={onNewUpload}
-            style={{ padding: '10px 20px', background: 'var(--accent-primary)', color: '#fff', borderRadius: 'var(--radius-sm)' }}
-          >
-            Upload your first video
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <button
+              onClick={onNewUpload}
+              style={{ padding: '10px 20px', background: 'var(--accent-primary)', color: '#fff', borderRadius: 'var(--radius-sm)' }}
+            >
+              Upload your first video
+            </button>
+            {onDiscover && (
+              <button
+                onClick={onDiscover}
+                style={{
+                  padding: '10px 20px',
+                  background: 'var(--bg-tertiary, #334155)',
+                  color: '#fff',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border-color, #475569)',
+                }}
+              >
+                🔍 Discover on YouTube
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>

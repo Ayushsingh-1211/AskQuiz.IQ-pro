@@ -187,26 +187,66 @@ def create_video_from_url(
     url = req.url.strip()
     title = req.title.strip() if req.title and req.title.strip() else f"Video from {url}"
 
-    with db.cursor() as cur:
-        cur.execute(
-            """
-            INSERT INTO videos (user_id, title, url, status, metadata)
-            VALUES (%s, %s, %s, 'queued', '{}'::jsonb)
-            RETURNING *
-            """,
-            (user_id, title, url),
-        )
-        video_row = cur.fetchone()
-        vid = str(video_row["id"])
+    # Extract YouTube ID if it is a YouTube URL to canonicalize deduplication
+    from core.youtube.client import extract_youtube_id
+    yt_id = extract_youtube_id(url)
+    if yt_id:
+        canonical_url = f"https://www.youtube.com/watch?v={yt_id}"
+        lock_key = int.from_bytes(hashlib.sha256(f"{user_id}:{yt_id}".encode()).digest()[:8], "big", signed=True)
+    else:
+        canonical_url = url
+        lock_key = int.from_bytes(hashlib.sha256(f"{user_id}:{url}".encode()).digest()[:8], "big", signed=True)
 
-        cur.execute(
-            """
-            INSERT INTO jobs (job_type, status, payload)
-            VALUES ('video_pipeline', 'queued', %s)
-            """,
-            (json.dumps({"video_id": vid, "url": url}),),
-        )
-    db.commit()
+    with db.transaction():
+        with db.cursor() as cur:
+            # 1. Acquire transaction advisory lock
+            cur.execute("SELECT pg_advisory_xact_lock(%s)", (lock_key,))
+
+            # 2. Re-check deduplication under the lock
+            if yt_id:
+                cur.execute(
+                    """
+                    SELECT * FROM videos
+                    WHERE user_id = %s
+                      AND (url = %s OR url LIKE %s OR metadata->>'youtube_id' = %s)
+                    LIMIT 1
+                    """,
+                    (user_id, canonical_url, f"%{yt_id}%", yt_id),
+                )
+            else:
+                cur.execute(
+                    """
+                    SELECT * FROM videos
+                    WHERE user_id = %s AND url = %s
+                    LIMIT 1
+                    """,
+                    (user_id, canonical_url),
+                )
+            existing = cur.fetchone()
+            if existing:
+                logger.info(f"Video {canonical_url} already in library for user {user_id}; returning existing record.")
+                return build_video_out(existing)
+
+            # 3. Atomically insert video
+            cur.execute(
+                """
+                INSERT INTO videos (user_id, title, url, status, metadata)
+                VALUES (%s, %s, %s, 'queued', '{}'::jsonb)
+                RETURNING *
+                """,
+                (user_id, title, canonical_url),
+            )
+            video_row = cur.fetchone()
+            vid = str(video_row["id"])
+
+            # 4. Atomically enqueue background ingestion job
+            cur.execute(
+                """
+                INSERT INTO jobs (job_type, status, payload)
+                VALUES ('video_pipeline', 'queued', %s)
+                """,
+                (json.dumps({"video_id": vid, "url": canonical_url}),),
+            )
 
     return build_video_out(video_row)
 

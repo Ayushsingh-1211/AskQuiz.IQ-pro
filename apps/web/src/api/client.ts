@@ -1,4 +1,14 @@
-import { ApiError, AskRequest, AskResponse, LoginResponse, Video, VideoList } from './types';
+import {
+  ApiError,
+  AskRequest,
+  AskResponse,
+  LoginResponse,
+  Video,
+  VideoList,
+  YouTubePreviewOut,
+  YouTubeQuotaStatusOut,
+  YouTubeSearchResponse,
+} from './types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
@@ -96,5 +106,24 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(req),
     });
+  },
+
+  searchYouTube: async (query: string): Promise<YouTubeSearchResponse> => {
+    return request<YouTubeSearchResponse>(`/api/v1/discovery/search?q=${encodeURIComponent(query)}`);
+  },
+
+  getYouTubePreview: async (videoId: string): Promise<YouTubePreviewOut> => {
+    return request<YouTubePreviewOut>(`/api/v1/discovery/preview/${encodeURIComponent(videoId)}`);
+  },
+
+  importYouTubeVideo: async (videoId: string, title?: string): Promise<Video> => {
+    return request<Video>('/api/v1/discovery/import', {
+      method: 'POST',
+      body: JSON.stringify({ video_id: videoId, title }),
+    });
+  },
+
+  getYouTubeQuota: async (): Promise<YouTubeQuotaStatusOut> => {
+    return request<YouTubeQuotaStatusOut>('/api/v1/discovery/quota');
   },
 };

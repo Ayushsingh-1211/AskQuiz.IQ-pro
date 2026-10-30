@@ -129,6 +129,8 @@ def create_app() -> FastAPI:
     app.include_router(videos_router)
     from apps.api.app.routes.ask import router as ask_router
     app.include_router(ask_router)
+    from apps.api.app.routes.discovery import router as discovery_router
+    app.include_router(discovery_router)
 
     return app
 
