@@ -7,6 +7,7 @@ class AskRequest(BaseModel):
     query: str = Field(..., description="The user question at this moment")
     pause_t: float = Field(..., description="Current video pause timestamp in seconds")
     session_id: Optional[str] = Field(None, description="Optional chat session ID")
+    mode: Optional[str] = Field("video", description="Answer mode: 'video' (default) or 'web'")
 
 
 class AskResponse(BaseModel):
@@ -18,3 +19,4 @@ class AskResponse(BaseModel):
     notes: Optional[str] = None
     session_id: str
     pause_t: float
+    mode: str = "video"

@@ -8,8 +8,42 @@ interface CitationChipProps {
 
 export const CitationChip: React.FC<CitationChipProps> = ({ citation, onSeek }) => {
   const ref = citation.source_ref;
-  const label = ref?.label || `Source ${citation.chunk_id}`;
+  const isWeb = ref?.source_type === 'web' || Boolean(ref?.metadata?.url);
+  const webUrl = ref?.metadata?.url;
+  const label = ref?.label || (isWeb ? 'Web Source' : `Source ${citation.chunk_id}`);
   const timestamp = ref?.timestamp_s;
+
+  if (isWeb && webUrl) {
+    return (
+      <a
+        href={webUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={citation.text || label}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+          background: 'rgba(245, 158, 11, 0.15)',
+          border: '1px solid rgba(245, 158, 11, 0.4)',
+          borderRadius: '6px',
+          padding: '2px 8px',
+          fontSize: '0.8rem',
+          color: '#fbbf24',
+          textDecoration: 'none',
+          cursor: 'pointer',
+          transition: 'all 0.15s ease',
+          maxWidth: '220px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        <span>🌐</span>
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
+      </a>
+    );
+  }
 
   const handleClick = () => {
     if (timestamp !== undefined && timestamp !== null && onSeek) {
