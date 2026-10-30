@@ -28,17 +28,23 @@ def parse_srt_to_words(srt_path: Path) -> List[Dict[str, Any]]:
     """
     content = srt_path.read_text(encoding="utf-8", errors="replace")
     cue_pattern = re.compile(
-        r"(\d+)\s*\n(\d{2}:\d{2}:\d{2}[,\.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,\.]\d{3})\s*\n(.*?)(?=\n\s*\n|\Z)",
-        re.DOTALL,
+        r"(?:^\d+\s*\r?\n)?((?:\d{1,2}:)?\d{2}:\d{2}[,\.]\d{3})\s*-->\s*((?:\d{1,2}:)?\d{2}:\d{2}[,\.]\d{3})[^\r\n]*\r?\n(.*?)(?=\r?\n\r?\n|\Z)",
+        re.DOTALL | re.MULTILINE,
     )
 
     def parse_time(ts_str: str) -> float:
         ts_str = ts_str.replace(",", ".")
         parts = ts_str.split(":")
-        h = float(parts[0])
-        m = float(parts[1])
-        s = float(parts[2])
-        return h * 3600 + m * 60 + s
+        if len(parts) == 3:
+            h = float(parts[0])
+            m = float(parts[1])
+            s = float(parts[2])
+            return h * 3600 + m * 60 + s
+        elif len(parts) == 2:
+            m = float(parts[0])
+            s = float(parts[1])
+            return m * 60 + s
+        return float(parts[0])
 
     words: List[Dict[str, Any]] = []
     for match in cue_pattern.finditer(content):

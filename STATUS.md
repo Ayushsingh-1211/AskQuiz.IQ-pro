@@ -13,3 +13,9 @@
 - Render Free Memory & Port Fix: Lightweight zero-model health check, cloud-safe FTS retrieval mode, disabled worker on 512MB RAM, and early 0.0.0.0:$PORT listening green.
 - Web Mode (Spoiler ON/OFF): Independent Tavily & Groq pipeline, AnswerModeToggle, 24h caching, citation verification, 12/12 web tests and 7/7 vitest green.
 - Web Mode Audit Fix: FEATURE_WEB_MODE canonical precedence, atomic migration 004 transaction with target guard, 19/19 web mode tests pass.
+- YouTube Discovery (Phase 1): Config, dual-bucket Pacific quota manager, real multiprocessing lock, 24h caching, client, 23/23 tests green.
+- YouTube Discovery (Phase 2): Discovery search, preview, deduplicated intake handoff, quota API, 15/15 API tests and 38/38 total YouTube tests green.
+- YouTube Discovery (Phase 2 Reliability): Advisory transaction lock, concurrent duplicate deduplication, atomic job/video rollback verified, 41/41 YouTube and 7/7 vitest tests green.
+- YouTube Discovery (Phase 3 Frontend): Discover tab navigation, search, cards, preview modal, import & study handoff, quota tracking, 19/19 Vitest and clean Vite build green.
+- YouTube Discovery (Phase 3 Import Fix): Resolved NameError get_cached_video_details in client.py, verified unmocked live import handoff and duplicate deduplication, 43/43 YouTube and 19/19 Vitest tests green.
+- YouTube Discovery (Phase 4 Ingestion Pipeline Fix): Resolved yt-dlp binary resolution, audio+video format selector, VTT/SRT subtitle parser, captions-only fallback, and end-to-end Whisper+E5 embeddings; 43/43 YouTube, 2/2 intake, 19/19 web, and 19/19 Vitest tests green.

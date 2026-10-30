@@ -75,3 +75,54 @@ export interface ApiError {
   hint?: string;
   request_id?: string;
 }
+
+export interface YouTubeSearchResultItem {
+  video_id: string;
+  title: string;
+  channel_title: string;
+  description: string;
+  thumbnail_url: string;
+  published_at: string;
+  duration_s: number;
+  duration_formatted: string;
+  is_embeddable: boolean;
+  has_captions: boolean;
+  url: string;
+}
+
+export interface YouTubeSearchResponse {
+  query: string;
+  items: YouTubeSearchResultItem[];
+  total: number;
+}
+
+export interface YouTubePreviewOut {
+  video_id: string;
+  title: string;
+  channel_title: string;
+  description: string;
+  thumbnail_url: string;
+  published_at: string;
+  duration_s: number;
+  duration_formatted: string;
+  is_embeddable: boolean;
+  has_captions: boolean;
+  url: string;
+  importable: boolean;
+  import_notice?: string | null;
+  caption_notice?: string | null;
+}
+
+export interface YouTubeQuotaStatusOut {
+  date_pacific: string;
+  timezone: string;
+  next_reset_pt: string;
+  next_reset_utc: string;
+  seconds_until_reset: number;
+  search_calls_used: number;
+  search_calls_limit: number;
+  search_calls_remaining: number;
+  videos_units_used: number;
+  videos_units_budget: number;
+  videos_units_remaining: number;
+}

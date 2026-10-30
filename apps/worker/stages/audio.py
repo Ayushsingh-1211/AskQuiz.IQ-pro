@@ -35,8 +35,31 @@ def process_audio_and_proxy(video_id: str, input_path: Path) -> Tuple[Path, Path
     ]
     res_audio = subprocess.run(cmd_audio, capture_output=True, text=True, timeout=180)
     if res_audio.returncode != 0:
-        logger.error(f"Failed to extract audio: {res_audio.stderr[:300]}")
-        raise RuntimeError(f"Audio extraction failed: {res_audio.stderr[:200]}")
+        logger.warning(f"Audio extraction failed ({res_audio.stderr[:150]}). Checking if video has no audio track...")
+        has_audio = False
+        try:
+            probe_cmd = [ffprobe_cmd, "-v", "error", "-select_streams", "a", "-show_entries", "stream=codec_type", "-of", "csv=p=0", str(input_path)]
+            p_res = subprocess.run(probe_cmd, capture_output=True, text=True, timeout=15)
+            has_audio = bool(p_res.stdout.strip())
+        except Exception:
+            pass
+
+        if not has_audio:
+            logger.info(f"Video {video_id} has no audio stream. Creating silent audio track.")
+            dur_cmd = [ffprobe_cmd, "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", str(input_path)]
+            dur_res = subprocess.run(dur_cmd, capture_output=True, text=True, timeout=15)
+            v_dur = float(dur_res.stdout.strip()) if dur_res.stdout.strip() else 1.0
+            silent_cmd = [
+                ffmpeg_cmd, "-y",
+                "-f", "lavfi", "-i", "anullsrc=channel_layout=mono:sample_rate=16000",
+                "-t", str(v_dur),
+                "-c:a", "pcm_s16le",
+                str(audio_out),
+            ]
+            subprocess.run(silent_cmd, capture_output=True, timeout=30)
+        else:
+            logger.error(f"Failed to extract audio: {res_audio.stderr[:300]}")
+            raise RuntimeError(f"Audio extraction failed: {res_audio.stderr[:200]}")
 
     # 2. Generate 720p faststart proxy MP4
     logger.info(f"Generating 720p faststart proxy MP4 for video {video_id}...")

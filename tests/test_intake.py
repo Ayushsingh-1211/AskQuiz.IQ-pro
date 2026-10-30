@@ -34,6 +34,14 @@ def sample_mp4(tmp_path_factory) -> Path:
 def test_video_upload_and_dedupe(client: TestClient, test_user, sample_mp4: Path):
     headers = test_user["headers"]
 
+    # 0. Clean up previous test lecture if present
+    from apps.api.app.db.session import get_db_context
+    with get_db_context() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM jobs WHERE job_type = 'video_pipeline' AND payload->>'video_id' IN (SELECT id::text FROM videos WHERE title LIKE 'Test Lecture%')")
+            cur.execute("DELETE FROM videos WHERE title LIKE 'Test Lecture%'")
+        conn.commit()
+
     # 1. Upload video
     with open(sample_mp4, "rb") as f:
         file_bytes = f.read()

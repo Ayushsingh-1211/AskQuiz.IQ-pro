@@ -36,6 +36,15 @@ class Settings(BaseSettings):
     RESEARCH_CONTEXT_TOKEN_CAP: int = 3000
     TAVILY_CACHE_TTL_HOURS: int = 24
 
+    # YouTube Discovery
+    YOUTUBE_API_KEY: str = ""
+    FEATURE_YOUTUBE_DISCOVERY: bool = True
+    YOUTUBE_SEARCH_MAX_RESULTS: int = 10
+    YOUTUBE_SEARCH_DAILY_LIMIT: int = 70       # Quota bucket 1: max fresh search.list calls per day
+    YOUTUBE_VIDEOS_DAILY_BUDGET: int = 7000    # Quota bucket 2: max units for videos.list calls per day
+    YOUTUBE_CACHE_TTL_HOURS: int = 24
+    YOUTUBE_TIMEOUT_S: float = 15.0
+
     # Database & Storage
     DATABASE_URL: str = "postgresql://pause:pause@localhost:5432/pause"
     DATA_DIR: str = "./data"
@@ -50,6 +59,7 @@ class Settings(BaseSettings):
     PUBLIC_API_URL: str = "http://localhost:8000"
 
     # Media & OCR tools
+    YTDLP_PATH: str = "yt-dlp"
     FFMPEG_PATH: str = "ffmpeg"
     FFPROBE_PATH: str = "ffprobe"
     TESSERACT_CMD: str = "tesseract"
@@ -153,6 +163,19 @@ class Settings(BaseSettings):
         if shutil.which(cmd):
             return cmd
         return cmd
+
+    def resolved_ytdlp_cmd(self) -> List[str]:
+        cmd = self.YTDLP_PATH
+        if shutil.which(cmd):
+            return [cmd]
+        if os.name == 'nt' and shutil.which(f'{cmd}.exe'):
+            return [f'{cmd}.exe']
+        import sys
+        venv_bin = Path(sys.executable).parent
+        candidate = venv_bin / (f'{cmd}.exe' if os.name == 'nt' else cmd)
+        if candidate.is_file():
+            return [str(candidate)]
+        return [sys.executable, '-m', 'yt_dlp']
 
 
 @lru_cache()

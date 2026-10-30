@@ -92,9 +92,53 @@ def process_video_pipeline_job(job_id: str, payload: Dict[str, Any]) -> None:
 
         if not media_path or not media_path.exists():
             if fetch_meta.get("visual_unavailable"):
-                logger.info(f"Video {video_id} visual unavailable, ready_text with captions only")
-                update_video_stage(conn, video_id, "ready_text", metadata_updates={"status_detail": "captions_only"})
-                return
+                logger.info(f"Video {video_id} visual unavailable, attempting captions-only pipeline")
+                video_dir = get_video_dir(video_id)
+                srt_candidates = [
+                    video_dir / "captions.srt",
+                    video_dir / "captions.vtt",
+                    Path(f"eval/dataset/{video_id}.en.srt"),
+                    *list(video_dir.glob("*.srt")),
+                    *list(video_dir.glob("*.vtt")),
+                ]
+                words = []
+                for cand in srt_candidates:
+                    if cand.exists():
+                        logger.info(f"Found subtitle file for captions-only video {video_id}: {cand}")
+                        words = parse_srt_to_words(cand)
+                        if words:
+                            break
+
+                if words:
+                    # Stage 4: Chunking
+                    update_video_stage(conn, video_id, "chunk")
+                    chunks = create_chunks_for_video(conn, video_id, words)
+                    logger.info(f"Created {len(chunks)} chunks from captions for video {video_id}")
+
+                    # Stage 5: Embeddings
+                    update_video_stage(conn, video_id, "embed")
+                    embedded_count = embed_video_chunks(conn, video_id)
+                    logger.info(f"Embedded {embedded_count} chunks for video {video_id}")
+
+                    # Stage 6: Mark ready_text
+                    duration_s = words[-1]["end"] if words else (video.get("duration_s") or 0.0)
+                    update_video_stage(
+                        conn,
+                        video_id,
+                        "ready_text",
+                        duration_s=duration_s,
+                        metadata_updates={
+                            "status_detail": "captions_only",
+                            "chunks_count": len(chunks),
+                            "words_count": len(words),
+                        },
+                    )
+                    logger.info(f"Video {video_id} intake complete via captions-only: ready_text ({len(chunks)} chunks)")
+                    return
+                else:
+                    logger.error(f"Video {video_id} visual unavailable and no captions found")
+                    update_video_stage(conn, video_id, "failed", metadata_updates={"error": "Media and captions unavailable"})
+                    raise RuntimeError(f"Could not fetch media or captions for video {video_id}")
             else:
                 update_video_stage(conn, video_id, "failed", metadata_updates={"error": "Media fetch failed"})
                 raise RuntimeError(f"Could not fetch media for video {video_id}")
@@ -116,13 +160,16 @@ def process_video_pipeline_job(job_id: str, payload: Dict[str, Any]) -> None:
             video_dir / "captions.srt",
             video_dir / "captions.vtt",
             Path(f"eval/dataset/{video_id}.en.srt"),
+            *list(video_dir.glob("*.srt")),
+            *list(video_dir.glob("*.vtt")),
         ]
         words = []
         for cand in srt_candidates:
             if cand.exists():
                 logger.info(f"Found existing subtitle file for video {video_id}: {cand}")
                 words = parse_srt_to_words(cand)
-                break
+                if words:
+                    break
 
         if not words and audio_path and audio_path.exists():
             logger.info(f"Transcribing audio for video {video_id} with Whisper...")
