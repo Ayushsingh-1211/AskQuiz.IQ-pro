@@ -1,22 +1,27 @@
+
 services:
   db:
     image: pgvector/pgvector:pg16
-    container_name: askquiz-db
     restart: unless-stopped
+
     ports:
-      - "5432:5432"
-      - "5433:5432"
+      - "127.0.0.1:5434:5432"
+
     environment:
-      POSTGRES_USER: pause
-      POSTGRES_PASSWORD: pause
-      POSTGRES_DB: pause
+      POSTGRES_USER: ${PRO_POSTGRES_USER:?Set PRO_POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${PRO_POSTGRES_PASSWORD:?Set PRO_POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${PRO_POSTGRES_DB:-askquiz_pro}
+
     volumes:
       - pgdata:/var/lib/postgresql/data
+
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pause -d pause"]
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${PRO_POSTGRES_USER} -d ${PRO_POSTGRES_DB:-askquiz_pro}
       interval: 3s
       timeout: 3s
-      retries: 5
+      retries: 10
 
 volumes:
   pgdata:

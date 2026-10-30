@@ -1,0 +1,27 @@
+# Documentation Index
+> Purpose: Navigation index and status register for the entire AskQuiz.IQ project documentation set.
+> Last updated: 2026-10-29 | Status: Current
+> Derived from: AskQuiz.IQ codebase, configuration manifests, and git history
+
+This index catalogues every documentation file in the AskQuiz.IQ knowledge base, its specific purpose, current synchronization status, and primary code sources.
+
+| Document | Purpose | Last Updated | Status | Primary Code Sources |
+|---|---|---|---|---|
+| [`docs/AI_CONTEXT.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/AI_CONTEXT.md) | Single self-contained bundle for zero-context AI assistants covering identity, flow, architecture, tech stack, logic, data, API, config, and limitations | 2026-10-29 | Current | Whole repository |
+| [`README.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/README.md) | Human-facing root project overview, core philosophy, and quickstart summary | 2026-10-29 | Current | `AGENTS.md`, `DEPLOYMENT_GUIDE.md` |
+| [`docs/ARCHITECTURE.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/ARCHITECTURE.md) | System topology, component boundaries, data flow diagrams, and communications | 2026-10-29 | Current | `apps/api/app/main.py`, `infra/docker-compose.yml`, `render.yaml` |
+| [`docs/FLOW.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/FLOW.md) | Complete end-to-end Step Cards for user authentication, video ingestion, streaming, and temporal Q&A | 2026-10-29 | Current | `apps/api/app/routes/`, `apps/worker/`, `core/answer.py` |
+| [`docs/TECH_STACK.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/TECH_STACK.md) | Exhaustive technology register with versions, roles, trade-offs, and free-tier limits | 2026-10-29 | Current | `pyproject.toml`, `apps/web/package.json`, `infra/Dockerfile` |
+| [`docs/LOGIC.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/LOGIC.md) | Algorithmic logic register: TAC enforcement, exact-word cuts, RRF ranking, citation verification | 2026-10-29 | Current | `core/tac.py`, `core/retrieval.py`, `core/verifier.py`, `core/chunking.py` |
+| [`docs/DATABASE.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/DATABASE.md) | PostgreSQL schema, pgvector configuration, relational tables, indexes, and sample rows | 2026-10-29 | Current | `apps/api/app/db/migrations/001_init.sql`, `002_chunks.sql` |
+| [`docs/DATA.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/DATA.md) | Ingestion data structures, file storage directory layout, chunk metadata formats | 2026-10-29 | Current | `apps/api/app/storage.py`, `core/chunking.py`, `eval/dataset/` |
+| [`docs/API.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/API.md) | Formal HTTP REST API contract, request/response schemas, auth headers, and error codes | 2026-10-29 | Current | `apps/api/app/routes/`, `apps/api/app/schemas/` |
+| [`docs/AI_PIPELINE.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/AI_PIPELINE.md) | Deep dive into embedding models, Whisper ASR, chunking windows, Gemini routing, and prompt injection defense | 2026-10-29 | Current | `core/llm/`, `core/embeddings.py`, `apps/worker/stages/asr.py` |
+| [`docs/PROMPTS.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/PROMPTS.md) | Prompt templates, system instructions, schemas, rewriting rules, and JSON output structures | 2026-10-29 | Current | `core/prompts/answer_system.md`, `core/prompts/rewrite.md` |
+| [`docs/CONFIG.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/CONFIG.md) | Configuration matrix, all environment variables, defaults, validation rules, and consumption points | 2026-10-29 | Current | `apps/api/app/config.py`, `infra/.env.example`, `render.yaml` |
+| [`docs/STRUCTURE.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/STRUCTURE.md) | Complete directory and file tree with single-line responsibility explanations | 2026-10-29 | Current | Repository file system |
+| [`docs/SETUP.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/SETUP.md) | Step-by-step installation, local dev environment runbook, Docker setup, and zero-cost cloud deployment | 2026-10-29 | Current | `RUNBOOK.md`, `DEPLOYMENT_GUIDE.md`, `infra/Dockerfile` |
+| [`docs/LIMITATIONS.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/LIMITATIONS.md) | Honest gap analysis, implemented vs. stubbed components, memory constraints, and known edge cases | 2026-10-29 | Current | `STATUS.md`, `DEPLOYMENT_GUIDE.md`, test runs |
+| [`docs/DECISIONS.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/DECISIONS.md) | Chronological architectural decision log (ADR) detailing options considered and rationale | 2026-10-29 | Current | Commit history, `STATUS.md` |
+| [`docs/GLOSSARY.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/GLOSSARY.md) | Domain-specific definitions (TAC, visible_from_s, Reciprocal Rank Fusion, exact-word cut, spoiler rule) | 2026-10-29 | Current | `spec/CORE.md`, `AGENTS.md` |
+| [`docs/CHANGELOG.md`](file:///c:/Users/AYUSH%20KUMAR%20SINGH/OneDrive/Documents/AskQuiz.IQ/docs/CHANGELOG.md) | Detailed version history, milestone transitions, and commit milestones | 2026-10-29 | Current | `git log`, `STATUS.md` |
