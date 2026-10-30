@@ -11,10 +11,5 @@
 - Login Fix: Demo password reset to demo12345 with dual alias support, 4/4 auth regression tests pass, live public authentication and workspace navigation verified green.
 - Cloud Deployment Config: Neon SSL connection resilience, embedded worker lifespan, dynamic PORT Dockerfile, render.yaml context, and Vercel build verified green on main (a501d9b).
 - Render Free Memory & Port Fix: Lightweight zero-model health check, cloud-safe FTS retrieval mode, disabled worker on 512MB RAM, and early 0.0.0.0:$PORT listening green.
-
-
-
-
-
-
-
+- Web Mode (Spoiler ON/OFF): Independent Tavily & Groq pipeline, AnswerModeToggle, 24h caching, citation verification, 12/12 web tests and 7/7 vitest green.
+- Web Mode Audit Fix: FEATURE_WEB_MODE canonical precedence, atomic migration 004 transaction with target guard, 19/19 web mode tests pass.

@@ -41,6 +41,7 @@ export interface SourceRef {
   page_number?: number;
   slide_number?: number;
   label?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface Citation {
@@ -53,6 +54,7 @@ export interface AskRequest {
   query: string;
   pause_t: number;
   session_id?: string;
+  mode?: 'video' | 'web';
 }
 
 export interface AskResponse {
@@ -64,6 +66,7 @@ export interface AskResponse {
   notes?: string;
   session_id: string;
   pause_t: number;
+  mode?: 'video' | 'web';
 }
 
 export interface ApiError {

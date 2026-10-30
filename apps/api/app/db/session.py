@@ -109,7 +109,12 @@ def check_db_health() -> bool:
         return False
 
 
-def run_migrations() -> None:
+def run_migrations(auto_apply_pending: bool = False) -> None:
+    """
+    Runs database migrations safely.
+    Pending migrations requiring manual human approval (>= 004) are skipped unless
+    auto_apply_pending=True is explicitly passed.
+    """
     conninfo = get_effective_database_url()
     logger.info("Running database migrations...")
     migrations_dir = Path(__file__).parent / "migrations"
@@ -132,6 +137,12 @@ def run_migrations() -> None:
 
         for sql_file in sql_files:
             version = sql_file.name
+
+            # Enforce rule: Never execute new database migrations without approval
+            if version >= "004" and not auto_apply_pending:
+                logger.info(f"Skipping migration {version}: pending manual human approval.")
+                continue
+
             with conn.cursor() as cur:
                 cur.execute("SELECT 1 FROM schema_migrations WHERE version = %s", (version,))
                 if cur.fetchone():

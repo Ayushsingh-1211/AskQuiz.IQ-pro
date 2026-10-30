@@ -2,8 +2,8 @@ import os
 import shutil
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Optional, Union
-from pydantic import field_validator
+from typing import Any, List, Optional, Union
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -22,6 +22,19 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     OLLAMA_URL: str = "http://localhost:11434"
     LLM_DAILY_CAP: int = 0
+
+    # Web Research (Spoiler ON/OFF)
+    TAVILY_API_KEY: str = ""
+    GROQ_API_KEY: str = ""
+    RESEARCH_MODEL: str = "llama-3.3-70b-versatile"
+    FEATURE_WEB_MODE: bool = False
+    WEB_SEARCH_ENABLED: bool = False
+    TAVILY_MAX_RESULTS: int = 5
+    TAVILY_TIMEOUT_S: float = 15.0
+    GROQ_TIMEOUT_S: float = 25.0
+    GROQ_MAX_TOKENS: int = 700
+    RESEARCH_CONTEXT_TOKEN_CAP: int = 3000
+    TAVILY_CACHE_TTL_HOURS: int = 24
 
     # Database & Storage
     DATABASE_URL: str = "postgresql://pause:pause@localhost:5432/pause"
@@ -70,6 +83,36 @@ class Settings(BaseSettings):
     # Pricing
     PRICE_IN_PER_MTOK: float = 0.0
     PRICE_OUT_PER_MTOK: float = 0.0
+
+    @model_validator(mode="before")
+    @classmethod
+    def resolve_feature_flags(cls, data: Any) -> Any:
+        """
+        1. FEATURE_WEB_MODE is canonical.
+        2. Default is False when absent.
+        3. WEB_SEARCH_ENABLED is supported as backward-compatible alias.
+        4. If both are defined, FEATURE_WEB_MODE wins.
+        """
+        if isinstance(data, dict):
+            feat = data.get("FEATURE_WEB_MODE")
+            legacy = data.get("WEB_SEARCH_ENABLED")
+
+            if feat is not None:
+                if isinstance(feat, str):
+                    resolved = feat.lower() in ("true", "1", "yes", "on")
+                else:
+                    resolved = bool(feat)
+            elif legacy is not None:
+                if isinstance(legacy, str):
+                    resolved = legacy.lower() in ("true", "1", "yes", "on")
+                else:
+                    resolved = bool(legacy)
+            else:
+                resolved = False
+
+            data["FEATURE_WEB_MODE"] = resolved
+            data["WEB_SEARCH_ENABLED"] = resolved
+        return data
 
     @field_validator("REFUSAL_SCORE_THRESHOLD", "ALIGN_TAU", mode="before")
     @classmethod
